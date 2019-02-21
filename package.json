@@ -1,0 +1,14 @@
+{
+  "name": "soup-kitchen",
+  "version": "1.0.0",
+  "description": "A Discord Management Bot that helps maintain the simple moderation management of a Discord Server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "lumix103",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.4.2"
+  }
+}
