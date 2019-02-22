@@ -1,6 +1,6 @@
 const fs = require('fs');
 const Discord = require('discord.js'); 
-const {prefix, token} = require('./config.json');
+const {prefix, token, bot_color} = require('./config.json');
 const client = new Discord.Client();
 
 client.commands = new Discord.Collection();
@@ -47,25 +47,14 @@ client.on('message', msg =>
     /*Checks if the user has the correct permissions */
     if(command.permissions)
     {
-        let hasPermissions = false;
-        for(let i = 0; i < command.permissions.length; i++)
-        {
-            console.log(command.permissions[i]);
-            if(msg.member.hasPermission(command.permissions[i],true,true))
-            {  
-                console.log(`${msg.author.tag} has permission: ${command.permissions[i]}`);
-                hasPermissions = true;
-            }
-            else
-                hasPermissions = false;
-        }
-        if(!hasPermissions)
+        if(msg.member.hasPermission(command.permissions,true,true))
+            console.log(`${msg.author.tag} has all permission for: ${command.name}`);
+        else
         {
             return msg.reply(`You do not have that permission to execute that command.`)
         }
     }
     /*Checks if there is a cooldown on the command */
-    
     if(!cooldowns.has(command.name))
     {
         cooldowns.set(command.name, new Discord.Collection());
