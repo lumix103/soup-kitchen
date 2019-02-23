@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const {bot_color} = require('../config.json');
+const Utils = require('../utils.js');
 module.exports = {
     name: 'kick',
     args: true,
@@ -10,7 +11,7 @@ module.exports = {
 	description: 'Kicks a user from the server.',
     execute(msg, args) 
     {
-        const kicked = msg.mentions.users.first();
+        const kicked = Utils.fetchUserFromMention(msg.client,args[0]);
         let embedColor = parseInt(bot_color);
         if(kicked)
         {
