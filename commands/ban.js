@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const {bot_color} = require('../config.json');
+const Utils = require(`../utils.js`);
 module.exports = 
 {
     name: 'ban',
@@ -11,7 +12,7 @@ module.exports =
 	description: 'Bans a user from the server.',
     execute(msg, args) 
     {
-        const banned = msg.mentions.users.first();
+        const banned = Utils.fetchUserFromMention(msg.client,args[0]);
         let embedColor = parseInt(bot_color);
         let embedReply = new Discord.RichEmbed()
             .setColor(embedColor)
