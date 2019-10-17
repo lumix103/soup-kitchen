@@ -9,63 +9,57 @@ module.exports = {
     permissions: ['KICK_MEMBERS'],
     usage: '<mention_user> <reason (optional)>',
 	description: 'Kicks a user from the server.',
-    execute(msg, args) 
+    async execute(msg, args) 
     {
         const kicked = Utils.fetchUserFromMention(msg.client,args[0]);
         let embedColor = parseInt(bot_color);
-        if(kicked)
+        let embedReply = new Discord.RichEmbed()
+            .setColor(embedColor)
+            .setThumbnail(msg.client.user.displayAvatarURL)
+            .setTimestamp()
+            .setFooter(`~3~`, msg.client.user.displayAvatarURL)
+            .setTitle(`Avatar - ${msg.author.tag}`);
+
+        if(!kicked)
         {
-            if(!msg.guild.member(kicked))
+            embedReply.setTitle(`${kicked} does not exist ¯\\_(ツ)_/¯`)
+                      .setDescription(`This command was called by ${msg.author}`);
+            return msg.channel.send(embedReply);
+        }
+        const guildMember = msg.guild.member(kicked);
+        if(!guildMember)
+        {
+            /*Return with some message that the user is not part of the server. */
+            embedReply.setTitle(`${kicked} is not in the server ¯\\_(ツ)_/¯`)
+                      .setDescription(`This command was called by ${msg.author}`);
+            return msg.channel.send(embedReply);
+        }
+        if(!guildMember.kickable)
+        {
+            /*Return with some message that the user is not bannable. */
+            embedReply.setTitle(`${guildMember.user.tag} is not kickable.`)
+                        .setDescription(`${msg.author} attempted to kick ${kicked}.`);
+            return msg.channel.send(embedReply);
+        }
+        let reason = "Undefined!";
+        /*Making sure that args[1] is defined for we can know that they did add a reason. */
+        if(args[1])
+            reason = args.slice(1,args.length).join(' ');
+        let parsedreason = await Utils.parseMentionsToTags(msg.client,reason);
+        console.log(`[Kick.JS]>>${parsedreason}`);
+        guildMember.kick(`${msg.author.tag} kicked ${guildMember.user.tag} for ${parsedreason}`).then(()=>
+        {
+            embedReply.setTitle(`Kick Command`)
+            .setDescription(`This user was kicked ${kicked} for \"${reason}\"\n
+                            Command was called by ${msg.author}`)
+            return msg.channel.send(embedReply);
+        }).catch(err => 
             {
-                const embedReply = new Discord.RichEmbed()
-                .setColor(embedColor)
-                .setTitle(`Kick Command`)
-                .setThumbnail(msg.client.user.displayAvatarURL)
-                .setDescription(`This user is not in the server. ${kicked}\n
-                                Command was called by ${msg.author}`)
-                .setTimestamp()
-                .setFooter(`-3-`, msg.client.user.displayAvatarURL);
-                return msg.channel.send(embedReply);  
-            }
-            let reason = "";
-            if(args[1])
-            {
-                for(let i = 1; i < args.length;i++)
-                {
-                    reason += args[i] + " ";
-                }
-            }
-            else
-            {
-                reason = "Undefined!";
-            }
-            msg.guild.member(kicked).kick(`User: ${msg.author.tag} Reason: ${reason}`).then(()=>
-            {
-                const embedReply = new Discord.RichEmbed()
-                .setColor(embedColor)
-                .setTitle(`Kick Command`)
-                .setThumbnail(msg.client.user.displayAvatarURL)
-                .setDescription(`This user was kicked ${kicked} for \"${reason}\"\n
-                                Command was called by ${msg.author}`)
-                .setTimestamp()
-                .setFooter(`-3-`, msg.client.user.displayAvatarURL);
+                embedReply.setDescription(`I could not kick ${kicked}; I may not have the permissions to or they are higher ranked!`)
+                        .setTitle(`Could not kick ${kicked} ¯\\_(ツ)_/¯`);
                 return msg.channel.send(embedReply);
-            }).catch(err => 
-                {
-                    const embedReply = new Discord.RichEmbed()
-                    .setColor(embedColor)
-                    .setTitle(`Kick Command`)
-                    .setThumbnail(msg.client.user.displayAvatarURL)
-                    .setDescription(`This user can not be kicked ${kicked}.\n
-                                    Command was called by ${msg.author}`)
-                    .setTimestamp()
-                    .setFooter(`-3-`, msg.client.user.displayAvatarURL);
-                    return msg.channel.send(embedReply);
-                });
-        }
-        else   /*This shouldnt happened because you need to pass an argument in order to get this function working */
-        {
-            return msg.reply(`${kicked} does not exist.`);
-        }
+            });
+
+                    
 	},
 };
